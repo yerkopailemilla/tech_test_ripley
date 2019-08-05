@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/toolbar_shopping_bag"
+        android:icon="@mipmap/ic_shopping_bag"
+        android:title="@string/toolbar_main_title"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:actionLayout="@layout/toolbar_main" />
+
+</menu>

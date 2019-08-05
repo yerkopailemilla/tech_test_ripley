@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="172dp"
+    android:orientation="vertical"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/barlow_bold"
+            android:textSize="@dimen/font_size_22"
+            android:textColor="@android:color/black"
+            android:text="Filtros"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_mxlarge"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/barlow_bold"
+            android:textSize="@dimen/font_size_18"
+            android:textColor="@android:color/black"
+            android:text="Categorías"/>
+
+    </LinearLayout>
+
+</LinearLayout>
