@@ -20,10 +20,10 @@ public interface ShowProductCatalogMVP {
 
     interface Presenter {
         void setCatalogView(ShowProductCatalogMVP.View view);
-        void getProductsCatalog();
+        void getProductsCatalog(String sku);
     }
 
     interface Model {
-        Observable<List<CatalogEntity>> getCatalogData();
+        Observable<List<CatalogEntity>> getCatalogData(String sku);
     }
 }

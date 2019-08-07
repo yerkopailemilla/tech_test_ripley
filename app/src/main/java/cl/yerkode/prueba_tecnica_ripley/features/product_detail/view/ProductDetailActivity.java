@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -20,9 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,19 +32,24 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cl.yerkode.prueba_tecnica_ripley.R;
+import cl.yerkode.prueba_tecnica_ripley.SplashActivity;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.ProductDetailMVP;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.Attribute;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.Image;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.ProductDetailEntity;
+import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.add_product_to_cart.AddProductCartRequest;
+import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.add_product_to_cart.Product;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.presenter.ProductDetailPresenter;
+import cl.yerkode.prueba_tecnica_ripley.features.shopping_cart.model.entity.new_cart.NewCartResponse;
 import cl.yerkode.prueba_tecnica_ripley.features.shopping_cart.view.CartDialogFragment;
+import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.model.entity.CatalogEntity;
 import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.view.CatalogActivity;
+import cl.yerkode.prueba_tecnica_ripley.utils.FormatNumber;
 import cl.yerkode.prueba_tecnica_ripley.utils.SlideImageAdapter;
 
-public class ProductDetailActivity extends AppCompatActivity implements ProductDetailMVP.View{
+public class ProductDetailActivity extends AppCompatActivity implements ProductDetailMVP.View {
 
     @BindView(R.id.toolbar_product_detail) Toolbar toolbar_product_detail;
-    @BindView(R.id.bottom_sheet) LinearLayout lytBottomSheet;
     @BindView(R.id.pager) ViewPager viewPager;
     @BindView(R.id.layout_dots) LinearLayout layout_dots;
     @BindView(R.id.content_row) ViewGroup content_row;
@@ -53,19 +57,22 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
     @BindView(R.id.product_detail_name) TextView product_detail_name;
     @BindView(R.id.product_detail_card_price) TextView product_detail_card_price;
     @BindView(R.id.product_detail_list_price) TextView product_detail_list_price;
+    @BindView(R.id.btn_add_to_cart) Button btn_add_to_cart;
 
     private Unbinder unbinder;
     private ProductDetailMVP.Presenter presenter;
     private ProgressDialog loader;
     private SlideImageAdapter adapterImageSlider;
-    private String skuProduct;
+    private NewCartResponse cartResponse;
+    private CatalogEntity productCatalog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
         unbinder = ButterKnife.bind(this);
-        skuProduct = getIntent().getStringExtra(CatalogActivity.PRODUCT_SKU);
+        cartResponse = (NewCartResponse) getIntent().getSerializableExtra(SplashActivity.CART_DATA);
+        productCatalog = (CatalogEntity) getIntent().getSerializableExtra(CatalogActivity.PRODUCT_DATA);
         setSupportActionBar(toolbar_product_detail);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -84,7 +91,44 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.getProductDetail(skuProduct);
+        presenter.getProductDetail(productCatalog);
+        clickAddProductToCart();
+    }
+
+    @Override
+    public void clickAddProductToCart() {
+        btn_add_to_cart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Product product = new Product();
+                String nameProduct = productCatalog.getName();
+                StringBuilder str = new StringBuilder(nameProduct);
+                List<Product> products = new ArrayList<>();
+
+                product.setPrice(productCatalog.getPrices().getListPrice());
+                product.setPriceDiscountRipley(productCatalog.getPrices().getCardPrice());
+                product.setSku(productCatalog.getSku());
+
+                if (nameProduct.length() >= 45) {
+                    str.setLength(44);
+                    product.setDescription(str.toString());
+                } else {
+                    product.setDescription(nameProduct);
+                }
+
+                product.setIsActive(productCatalog.getThumbnailImage());
+                product.setQuantity(1);
+                product.setCartId(cartResponse.getCartId());
+
+                products.add(product);
+                AddProductCartRequest addProductCart = new AddProductCartRequest();
+                addProductCart.setCartId(cartResponse.getCartId());
+                addProductCart.setCustomerId(cartResponse.getCustomerId());
+                addProductCart.setProducts(products);
+
+                presenter.getProductToAdd(addProductCart);
+                }
+        });
     }
 
     @Override
@@ -103,29 +147,26 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.toolbar_shopping_bag:
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                Fragment prev = getSupportFragmentManager().findFragmentByTag("showShoppingCart");
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
+        if (item.getItemId() == R.id.toolbar_shopping_bag) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            Fragment prev = getSupportFragmentManager().findFragmentByTag("showShoppingCart");
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
 
-                DialogFragment dialogFragment = CartDialogFragment.newInstance();
-                dialogFragment.show(ft, "showShoppingCart");
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            DialogFragment dialogFragment = CartDialogFragment.newInstance(cartResponse.getCartId(), cartResponse.getCustomerId());
+            dialogFragment.show(ft, "showShoppingCart");
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void showProgress()  {
+    public void showProgress(String title, String message)  {
         if (getBaseContext()!= null && !isFinishing()){
-            /*getString(R.string.activity_retailers_title)*/
-            loader.setTitle("Detalle de producto");
-            loader.setMessage("Mostrando datos del producto");
+            loader.setTitle(title);
+            loader.setMessage(message);
             loader.setIndeterminate(true);
             loader.setCancelable(false);
             loader.show();
@@ -150,6 +191,11 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
     }
 
     @Override
+    public void messageAddProductToCart(String message){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void showProduct(ProductDetailEntity productDetailEntity) {
         if (productDetailEntity != null){
 
@@ -160,20 +206,20 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
             for (Attribute attribute : attributes) {
                 countRow++;
                 if (countRow % 2 == 0) {
-                    addChild(attribute.getName(), attribute.getValue(), Color.LTGRAY);
-                } else {
                     addChild(attribute.getName(), attribute.getValue(), Color.WHITE);
+                } else {
+                    addChild(attribute.getName(), attribute.getValue(), Color.LTGRAY);
                 }
             }
 
             product_detail_name.setText(productDetailEntity.getName());
             int cardPrice = productDetailEntity.getPrices().getCardPrice();
             if (cardPrice != 0){
-                product_detail_list_price.setText("$" + productDetailEntity.getPrices().getListPrice());
+                product_detail_list_price.setText(FormatNumber.toCLP(productDetailEntity.getPrices().getListPrice()));
                 product_detail_list_price.setPaintFlags(product_detail_list_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                product_detail_card_price.setText("$" + cardPrice);
+                product_detail_card_price.setText(FormatNumber.toCLP(cardPrice));
             } else {
-                product_detail_list_price.setText("$" + productDetailEntity.getPrices().getListPrice());
+                product_detail_list_price.setText(FormatNumber.toCLP(productDetailEntity.getPrices().getListPrice()));
                 lyt_card_price_detail.setVisibility(View.GONE);
             }
         }
@@ -260,4 +306,5 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductD
             dots[current].setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
         }
     }
+
 }

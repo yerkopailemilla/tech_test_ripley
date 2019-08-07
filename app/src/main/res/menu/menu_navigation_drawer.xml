@@ -1,44 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <group android:checkableBehavior="all">
-
+    <group
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_tecno"
-            app:actionViewClass="android.widget.CheckBox"
-            android:title="Tecno"
-            android:checkable="true">
+            android:orderInCategory="1"
+            android:checkable="true"
+            android:title="Tecno">
         </item>
-
         <item
             android:id="@+id/nav_electro"
-            app:actionViewClass="android.widget.CheckBox"
-            android:title="Electro"
-            android:checkable="true">
+            android:orderInCategory="2"
+            android:checkable="true"
+            android:title="Electro">
         </item>
-
         <item
             android:id="@+id/nav_muebles_hogar"
-            app:actionViewClass="android.widget.CheckBox"
-            android:title="Muebles y hogar"
-            android:checkable="true">
+            android:orderInCategory="3"
+            android:checkable="true"
+            android:title="Muebles y hogar">
         </item>
-
         <item
             android:id="@+id/nav_moda_mujer"
-            app:actionViewClass="android.widget.CheckBox"
-            android:title="Moda mujer"
-            android:checkable="true">
+            android:orderInCategory="4"
+            android:checkable="true"
+            android:title="Moda mujer">
         </item>
-
         <item
             android:id="@+id/nav_deporte_aventura"
-            app:actionViewClass="android.widget.CheckBox"
-            android:title="Deporte y aventura"
-            android:checkable="true">
+            android:orderInCategory="5"
+            android:checkable="true"
+            android:title="Deporte y aventura">
         </item>
-
     </group>
-
 </menu>

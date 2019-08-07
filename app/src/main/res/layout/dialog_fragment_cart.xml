@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:id="@+id/lyt_parent_shopping_cart"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -40,66 +40,37 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <LinearLayout
+        android:id="@+id/lyt_products"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:scrollingCache="true">
+        android:visibility="gone">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:orientation="vertical">
+        <include
+            layout="@layout/cart_products_list_view"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible"
-                android:orientation="vertical">
+    </LinearLayout>
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@mipmap/image_empty_cart"/>
+    <LinearLayout
+        android:id="@+id/lyt_cart_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="78dp"
-                    android:gravity="center"
-                    android:fontFamily="@font/barlow_bold"
-                    android:textSize="@dimen/font_size_30"
-                    android:textColor="@android:color/black"
-                    android:text="Tu bolsa está vacía"/>
+        <include
+            layout="@layout/empty_cart_view"/>
 
-            </LinearLayout>
+    </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/lyt_success"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@mipmap/image_success"/>
+        <include
+            layout="@layout/success_purchase_view"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="78dp"
-                    android:gravity="center"
-                    android:fontFamily="@font/barlow_bold"
-                    android:textSize="@dimen/font_size_30"
-                    android:textColor="@android:color/black"
-                    android:text="¡Compra exitosa!"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
+    </LinearLayout>
 
 </LinearLayout>

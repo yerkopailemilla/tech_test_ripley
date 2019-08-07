@@ -3,7 +3,9 @@ package cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.model.ent
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Prices {
+import java.io.Serializable;
+
+public class Prices implements Serializable {
 
     @SerializedName("listPrice")
     @Expose

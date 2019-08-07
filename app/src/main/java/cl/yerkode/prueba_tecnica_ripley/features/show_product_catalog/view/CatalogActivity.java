@@ -19,6 +19,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.util.List;
@@ -27,9 +30,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cl.yerkode.prueba_tecnica_ripley.R;
-import cl.yerkode.prueba_tecnica_ripley.adapters.ProductCatalogListener;
-import cl.yerkode.prueba_tecnica_ripley.adapters.ShowProductsCatalogAdapter;
+import cl.yerkode.prueba_tecnica_ripley.SplashActivity;
+import cl.yerkode.prueba_tecnica_ripley.adapters.catalog.ProductCatalogListener;
+import cl.yerkode.prueba_tecnica_ripley.adapters.catalog.ShowProductsCatalogAdapter;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.view.ProductDetailActivity;
+import cl.yerkode.prueba_tecnica_ripley.features.shopping_cart.model.entity.new_cart.NewCartResponse;
 import cl.yerkode.prueba_tecnica_ripley.features.shopping_cart.view.CartDialogFragment;
 import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.ShowProductCatalogMVP;
 import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.model.entity.CatalogEntity;
@@ -43,16 +48,18 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
     @BindView(R.id.nav_view) NavigationView nav_drawer;
     @BindView(R.id.catalog_main_recycler_view) RecyclerView catalog_main_recycler_view;
 
-    public static final String PRODUCT_SKU = "cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.view.KEY.PRODUCT_SKU";
+    public static final String PRODUCT_DATA = "cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.view.KEY.PRODUCT_DATA";
 
     private Unbinder unbinder;
     private ProgressDialog loader;
     private ShowProductsCatalogPresenter presenter;
+    private NewCartResponse cartResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_layout);
+        cartResponse = (NewCartResponse) getIntent().getSerializableExtra(SplashActivity.CART_DATA);
         unbinder = ButterKnife.bind(this);
         setSupportActionBar(toolbar_main);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -83,7 +90,8 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.getProductsCatalog();
+        String allSkus = "2000371667503P,2000351773811P,2000369109855P,2000366737198P,2000372411631P,2000359329935P,2000375421729P,2000372107077P,2000371958953P,2000373857964P,2000371827983P,2000374299572P,2000374310932P,2000368425048P,2000371915604P,2000369989594P,MPM00002006512,2000335659285P,2000327637482P,MPM00001075806,2000370840266,2000371979422,2000373199514,2000373423879,2000372471789";
+        presenter.getProductsCatalog(allSkus);
     }
 
     @Override
@@ -120,7 +128,7 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
             }
             ft.addToBackStack(null);
 
-            DialogFragment dialogFragment = CartDialogFragment.newInstance();
+            DialogFragment dialogFragment = CartDialogFragment.newInstance(cartResponse.getCartId(), cartResponse.getCustomerId());
             dialogFragment.show(ft, "showShoppingCart");
             return true;
         }
@@ -132,19 +140,34 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
         int drawerOptions = menuItem.getItemId();
         switch (drawerOptions){
             case R.id.nav_tecno:
-                Toast.makeText(CatalogActivity.this, "Tecno", Toast.LENGTH_SHORT).show();
+                String tecno = "2000359329935P,2000375421729P,2000372107077P,2000371958953P,2000373857964P";
+                presenter.getProductsCatalog(tecno);
+                drawer.closeDrawers();
+                menuItem.setChecked(false);
                 return true;
             case R.id.nav_electro:
-                Toast.makeText(CatalogActivity.this, "Electro", Toast.LENGTH_SHORT).show();
+                String electro = "2000371667503P,2000351773811P,2000369109855P,2000366737198P,2000372411631P";
+                presenter.getProductsCatalog(electro);
+                drawer.closeDrawers();
+                menuItem.setChecked(false);
                 return true;
             case R.id.nav_muebles_hogar:
-                Toast.makeText(CatalogActivity.this, "Muebles y hogar", Toast.LENGTH_SHORT).show();
+                String muebles_hogar = "2000371827983P,2000374299572P,2000374310932P,2000368425048P,2000371915604P";
+                presenter.getProductsCatalog(muebles_hogar);
+                drawer.closeDrawers();
+                menuItem.setChecked(false);
                 return true;
             case R.id.nav_moda_mujer:
-                Toast.makeText(CatalogActivity.this, "Moda y mujer", Toast.LENGTH_SHORT).show();
+                String moda_mujer = "2000370840266,2000371979422,2000373199514,2000373423879,2000372471789";
+                presenter.getProductsCatalog(moda_mujer);
+                drawer.closeDrawers();
+                menuItem.setChecked(false);
                 return true;
             case R.id.nav_deporte_aventura:
-                Toast.makeText(CatalogActivity.this, "Deporte y aventura", Toast.LENGTH_SHORT).show();
+                String deporte = "2000369989594P,MPM00002006512,2000335659285P,2000327637482P,MPM00001075806";
+                presenter.getProductsCatalog(deporte);
+                drawer.closeDrawers();
+                menuItem.setChecked(false);
                 return true;
             default:
                 return false;
@@ -154,7 +177,6 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void showProgress()  {
         if (getBaseContext()!= null && !isFinishing()){
-            /*getString(R.string.activity_retailers_title)*/
             loader.setTitle("Catálogo de productos");
             loader.setMessage("Cargando lista de productos...");
             loader.setIndeterminate(true);
@@ -188,9 +210,10 @@ public class CatalogActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
-    public void toProductDetail(String sku) {
+    public void toProductDetail(CatalogEntity product) {
         Intent toProductDetail = new Intent(this, ProductDetailActivity.class);
-        toProductDetail.putExtra(PRODUCT_SKU, sku);
+        toProductDetail.putExtra(PRODUCT_DATA, product);
+        toProductDetail.putExtra(SplashActivity.CART_DATA, cartResponse);
         startActivity(toProductDetail);
     }
 

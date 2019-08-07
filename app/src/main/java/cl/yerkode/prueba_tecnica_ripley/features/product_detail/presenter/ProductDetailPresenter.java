@@ -5,6 +5,9 @@ import android.support.annotation.Nullable;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.ProductDetailMVP;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.ProductDetailModel;
 import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.ProductDetailEntity;
+import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.add_product_to_cart.AddProductCartRequest;
+import cl.yerkode.prueba_tecnica_ripley.features.product_detail.model.entity.add_product_to_cart.AddProductCartResponse;
+import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.model.entity.CatalogEntity;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -27,15 +30,15 @@ public class ProductDetailPresenter implements ProductDetailMVP.Presenter {
     }
 
     @Override
-    public void getProductDetail(String skuProduct) {
+    public void getProductDetail(CatalogEntity product) {
         if (view != null){
-            model.getProductDetailData(skuProduct)
+            model.getProductDetailData(product)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ProductDetailEntity>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        view.showProgress();
+                        view.showProgress("Detalle de producto", "Mostrando datos del producto");
                     }
 
                     @Override
@@ -56,6 +59,39 @@ public class ProductDetailPresenter implements ProductDetailMVP.Presenter {
                     }
                 });
         }
+    }
+
+    @Override
+    public void getProductToAdd(AddProductCartRequest addProductCartRequest) {
+        if (view != null){
+            model.addProductToCart(addProductCartRequest)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<AddProductCartResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        view.showProgress("Carrito de compras", "Añadiendo producto a tu carrito de compras");
+                    }
+
+                    @Override
+                    public void onNext(AddProductCartResponse addProductCartResponse) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        view.hideProgress();
+                        view.messageAddProductToCart("Ha ocurrido un error mientras se agregaba el producto al carrito");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        view.hideProgress();
+                        view.messageAddProductToCart("Producto añadido correctamente");
+                    }
+                });
+        }
+
     }
 
 }

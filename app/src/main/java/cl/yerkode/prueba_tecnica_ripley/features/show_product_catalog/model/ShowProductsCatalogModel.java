@@ -18,8 +18,8 @@ public class ShowProductsCatalogModel implements ShowProductCatalogMVP.Model {
     }
 
     @Override
-    public Observable<List<CatalogEntity>> getCatalogData() {
-        return interceptor.get().getProductsCatalogRx();
+    public Observable<List<CatalogEntity>> getCatalogData(String sku) {
+        return interceptor.get().getProductsCatalogRx(sku);
     }
 
 }

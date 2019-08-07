@@ -2,6 +2,7 @@ package cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.presenter
 
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.ShowProductCatalogMVP;
@@ -17,10 +18,12 @@ public class ShowProductsCatalogPresenter implements ShowProductCatalogMVP.Prese
     @Nullable
     private ShowProductCatalogMVP.View view;
     private ShowProductCatalogMVP.Model model;
+    private List<CatalogEntity> productList;
 
     public ShowProductsCatalogPresenter(@Nullable ShowProductCatalogMVP.View view) {
         this.view = view;
         this.model = new ShowProductsCatalogModel(this);
+        this.productList = new ArrayList<>();
     }
 
     @Override
@@ -29,9 +32,9 @@ public class ShowProductsCatalogPresenter implements ShowProductCatalogMVP.Prese
     }
 
     @Override
-    public void getProductsCatalog() {
+    public void getProductsCatalog(String sku) {
         if (view != null){
-            model.getCatalogData()
+            model.getCatalogData(sku)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<CatalogEntity>>() {
@@ -42,7 +45,9 @@ public class ShowProductsCatalogPresenter implements ShowProductCatalogMVP.Prese
 
                     @Override
                     public void onNext(List<CatalogEntity> catalogEntities) {
-                        view.showCatalog(catalogEntities);
+                        if (catalogEntities != null){
+                            productList = catalogEntities;
+                        }
                     }
 
                     @Override
@@ -53,6 +58,7 @@ public class ShowProductsCatalogPresenter implements ShowProductCatalogMVP.Prese
 
                     @Override
                     public void onComplete() {
+                        view.showCatalog(productList);
                         view.hideProgress();
                         view.productsCatalogSuccess();
                     }

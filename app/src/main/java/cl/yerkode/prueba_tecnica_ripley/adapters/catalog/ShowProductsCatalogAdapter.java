@@ -1,4 +1,4 @@
-package cl.yerkode.prueba_tecnica_ripley.adapters;
+package cl.yerkode.prueba_tecnica_ripley.adapters.catalog;
 
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
@@ -18,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cl.yerkode.prueba_tecnica_ripley.R;
 import cl.yerkode.prueba_tecnica_ripley.features.show_product_catalog.model.entity.CatalogEntity;
+import cl.yerkode.prueba_tecnica_ripley.utils.FormatNumber;
 
 public class ShowProductsCatalogAdapter extends RecyclerView.Adapter<ShowProductsCatalogAdapter.CatalogViewHolder> {
 
@@ -51,13 +52,16 @@ public class ShowProductsCatalogAdapter extends RecyclerView.Adapter<ShowProduct
 
         int cardPrice = catalog.getPrices().getCardPrice();
 
-        if (cardPrice != 0){
-            catalogViewHolder.item_list_catalog_price.setText("$" + catalog.getPrices().getListPrice());
-            catalogViewHolder.item_list_catalog_price.setPaintFlags(catalogViewHolder.item_list_catalog_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            catalogViewHolder.item_list_catalog_card_price.setText("$" + catalog.getPrices().getCardPrice());
-        } else {
-            catalogViewHolder.item_list_catalog_price.setText("$" + catalog.getPrices().getListPrice());
-            catalogViewHolder.lyt_card_price.setVisibility(View.GONE);
+        switch (cardPrice){
+            case 0:
+                catalogViewHolder.item_list_catalog_price.setText(FormatNumber.toCLP(catalog.getPrices().getListPrice()));
+                catalogViewHolder.lyt_card_price.setVisibility(View.GONE);
+                break;
+            default:
+                catalogViewHolder.item_list_catalog_price.setText(FormatNumber.toCLP(catalog.getPrices().getListPrice()));
+                catalogViewHolder.item_list_catalog_price.setPaintFlags(catalogViewHolder.item_list_catalog_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                catalogViewHolder.item_list_catalog_card_price.setText(FormatNumber.toCLP(catalog.getPrices().getCardPrice()));
+                break;
         }
 
         catalogViewHolder.item_list_catalog_image.setOnClickListener(new View.OnClickListener() {
@@ -65,9 +69,10 @@ public class ShowProductsCatalogAdapter extends RecyclerView.Adapter<ShowProduct
             public void onClick(View view) {
                 int auxPosition = catalogViewHolder.getAdapterPosition();
                 CatalogEntity auxCatalog = catalogEntityList.get(auxPosition);
-                catalogListener.toProductDetail(auxCatalog.getSku());
+                catalogListener.toProductDetail(auxCatalog);
             }
         });
+
     }
 
     @Override
